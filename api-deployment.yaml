@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose-windows-amd64.exe -f docker-compose.yml convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose-windows-amd64.exe -f docker-compose.yml convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/webnotes_network: "true"
+        io.kompose.service: api
+    spec:
+      containers:
+        - args:
+            - uvicorn
+            - API_Server:app
+            - --host
+            - api
+            - --port
+            - "80"
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_HOST
+                  name: api-env
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_NAME
+                  name: api-env
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PASSWORD
+                  name: api-env
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USERNAME
+                  name: api-env
+          image: api
+          name: api
+          resources: {}
+      restartPolicy: Always
+status: {}
